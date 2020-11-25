@@ -1,0 +1,364 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <time.h>
+using namespace std;
+
+template <class T>
+void HoanVi(T& a, T& b)
+{
+	T x = a;
+	a = b;
+	b = x;
+}
+
+//-------------------------------------------------
+
+// Hàm phát sinh mảng dữ liệu ngẫu nhiên
+void GenerateRandomData(int a[], int n)
+{
+	srand((unsigned int)time(NULL));
+
+	for (int i = 0; i < n; i++)
+	{
+		a[i] = rand() % n;
+	}
+}
+
+// Hàm phát sinh mảng dữ liệu có thứ tự tăng dần
+void GenerateSortedData(int a[], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		a[i] = i;
+	}
+}
+
+// Hàm phát sinh mảng dữ liệu có thứ tự ngược (giảm dần)
+void GenerateReverseData(int a[], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		a[i] = n - 1 - i;
+	}
+}
+
+// Hàm phát sinh mảng dữ liệu gần như có thứ tự
+void GenerateNearlySortedData(int a[], int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		a[i] = i;
+	}
+	srand((unsigned int)time(NULL));
+	for (int i = 0; i < 10; i++)
+	{
+		int r1 = rand() % n;
+		int r2 = rand() % n;
+		HoanVi(a[r1], a[r2]);
+	}
+}
+
+void GenerateData(int a[], int n, int dataType)
+{
+	switch (dataType)
+	{
+	case 0:	// ngẫu nhiên
+		GenerateRandomData(a, n);
+		break;
+	case 1:	// có thứ tự
+		GenerateSortedData(a, n);
+		break;
+	case 2:	// có thứ tự ngược
+		GenerateReverseData(a, n);
+		break;
+	case 3:	// gần như có thứ tự
+		GenerateNearlySortedData(a, n);
+		break;
+	default:
+		printf("Error: unknown data type!\n");
+	}
+}
+void printArray(int arr[], int size)
+{
+	for (int i = 0; i < size; i++)
+		cout << arr[i] << " ";
+}
+void selectionSort(int* arr, int n)
+{
+	int min;
+	for (int i = 0; i < n - 1; i++) {
+		min = i;
+		for (int j = i + 1; j < n; j++) {
+			if (arr[j] < arr[min]) {
+				min = j;
+			}
+		}
+
+		if (min != i) {
+			swap(arr[min], arr[i]);
+		}
+	}
+}
+void quickSort(int* arr, int low, int high)
+{
+	if (low < high)
+	{
+		int i = low, j = high;
+		int pivot = arr[low];
+		do {
+			while (arr[i] < pivot) ++i;
+			while (arr[j] > pivot) --j;
+			if (i <= j) {
+				swap(arr[i], arr[j]);
+				++i; --j;
+			}
+		} while (i < j);
+
+		quickSort(arr, low, j);
+		quickSort(arr, i, high);
+	}
+}
+void heapify(int arr[], int n, int i)
+{
+	int largest = i; // Initialize largest as root 
+	int l = 2 * i + 1; // left = 2*i + 1 
+	int r = 2 * i + 2; // right = 2*i + 2 
+
+	// If left child is larger than root 
+	if (l < n && arr[l] > arr[largest])
+		largest = l;
+
+	// If right child is larger than largest so far 
+	if (r < n && arr[r] > arr[largest])
+		largest = r;
+
+	// If largest is not root 
+	if (largest != i)
+	{
+		swap(arr[i], arr[largest]);
+
+		// Recursively heapify the affected sub-tree 
+		heapify(arr, n, largest);
+	}
+}
+void heapSort(int arr[], int n)
+{
+	// Build heap (rearrange array) 
+	for (int i = n / 2 - 1; i >= 0; i--)
+		heapify(arr, n, i);
+	// One by one extract an element from heap 
+	for (int i = n - 1; i > 0; i--)
+	{
+		swap(arr[0], arr[i]);
+
+		heapify(arr, i, 0);
+	}
+}
+void merge(int arr[], int l, int m, int r)
+{
+	int n1 = m - l + 1;
+	int n2 = r - m;
+
+	int* L = new int[n1];
+	int* R = new int[n2];
+
+	for (int i = 0; i < n1; i++)
+		L[i] = arr[l + i];
+	for (int j = 0; j < n2; j++)
+		R[j] = arr[m + 1 + j];
+
+	int i = 0, j = 0, k = l;
+
+	while (i < n1 && j < n2)
+	{
+		if (L[i] <= R[j])
+		{
+			arr[k++] = L[i++];
+		}
+		else
+		{
+			arr[k++] = R[j++];
+		}
+	}
+
+	for (; i < n1; i++)
+		arr[k++] = L[i];
+	for (; i < n2; i++)
+		arr[k++] = R[i];
+	delete[] L;
+	delete[] R;
+}
+void mergeSort(int arr[], int l, int r)
+{
+	if (l < r)
+	{
+		int m = l + (r - l) / 2;
+
+		mergeSort(arr, l, m);
+		mergeSort(arr, m + 1, r);
+		merge(arr, l, m, r);
+	}
+}
+void insertionSort(int arr[], int n)
+{
+	int i, key, j;
+	for (i = 1; i < n; i++)
+	{
+		key = arr[i];
+		j = i - 1;
+
+		while (j >= 0 && arr[j] > key)
+		{
+			arr[j + 1] = arr[j];
+			j--;
+		}
+		arr[j + 1] = key;
+	}
+}
+
+int binarySearch(int a[], int item, int low, int high)
+{
+	if (high <= low)
+		return (item > a[low]) ?
+		(low + 1) : low;
+
+	int mid = (low + high) / 2;
+	 
+	if (item == a[mid])
+		return mid + 1;
+
+	if (item > a[mid])
+		return binarySearch(a, item,
+			mid + 1, high);
+	return binarySearch(a, item, low,
+		mid - 1);
+}
+
+void BInsertionSort(int *a, int n)
+{
+	int l, r, m;
+	int x; //lưu giá trị a[i] tránh bị ghi đè khi dời chỗ các phần tử.  
+	for (int i = 1; i < n; i++)
+	{
+		x = a[i]; l = 0;
+		r = i - 1;
+		while (l <= r) // tìm vị trí chèn x 
+		{
+			m = (l + r) / 2;
+			// tìm vị trí thích hợp m   
+			if (x < a[m])
+				r = m - 1;
+			else
+				l = m + 1;
+		}
+		for (int j = i - 1; j >= l; j--)
+			a[j + 1] = a[j];	// dời các phần tử sẽ đứng sau x  
+		a[l] = x;	// chèn x vào dãy  }
+	}
+}
+void insertionSortBinary(int a[], int n)
+{
+	int i, loc, j, selected;
+
+	for (i = 1; i < n; ++i)
+	{
+		j = i - 1;
+		selected = a[i];
+
+		// find location where selected would be inserted
+		loc = binarySearch(a, selected, 0, j);
+
+		// Move all elements after location to create space
+		while (j >= loc)
+		{
+			a[j + 1] = a[j];
+			j--;
+		}
+		a[j + 1] = selected;
+	}
+}
+void BubbleSort(int* a, int n)
+{
+	for (int i = 0; i < n - 1; i++)
+		for (int j = n - 1; j > i; j--)
+			if (a[j] < a[j - 1])
+				swap(a[j], a[j - 1]);
+}
+void ShakerSort(int* a, int n)
+{
+	// Thuật toán cải tiến thuật toán sắp xếp nổi bọt
+	// Bình thường khi ta sắp xếp nổi bọt, giả sử tăng dần
+	// Thì phần tử nhỏ nhất sẽ được dồn về trái, dần dần cho đến hết.
+	// Còn với thuật toán này ta sẽ dồn phần tử nhỏ nhất về trái, phần tử lớn lớn sang phải đồng thời
+	int left, right, k;
+
+	left = 0;
+	right = n - 1;
+	k = n - 1;
+
+	while (left < right)
+	{
+		for (int j = right; j > left; j--)
+		{
+			if (a[j] < a[j - 1])
+			{
+				swap(a[j], a[j - 1]);
+				k = j;
+			}
+		}
+		left = k;
+
+		for (int j = left; j < right; j++)
+		{
+			if (a[j] > a[j + 1])
+			{
+				swap(a[j], a[j + 1]);
+				k = j;
+			}
+		}
+		right = k;
+	}
+}
+void shellSort(int arr[], int n)
+{
+	// Start with a big gap, then reduce the gap 
+	for (int gap = n / 2; gap > 0; gap /= 2)
+	{
+		// Do a gapped insertion sort for this gap size. 
+		// The first gap elements a[0..gap-1] are already in gapped order 
+		// keep adding one more element until the entire array is 
+		// gap sorted  
+		for (int i = gap; i < n; i += 1)
+		{
+			// add a[i] to the elements that have been gap sorted 
+			// save a[i] in temp and make a hole at position i 
+			int temp = arr[i];
+
+			// shift earlier gap-sorted elements up until the correct  
+			// location for a[i] is found 
+			int j;
+			for (j = i; j >= gap && arr[j - gap] > temp; j -= gap)
+				arr[j] = arr[j - gap];
+
+			//  put temp (the original a[i]) in its correct location 
+			arr[j] = temp;
+		}
+	}
+}
+int main()
+{
+	int a[] = { 4, 3, 2, 10, 12, 1, 5, 6 };
+	int n = sizeof(a) / sizeof(a[0]);
+	
+	//GenerateRandomData(a, n);
+	cout << "Mang ban dau: ";
+	printArray(a, n);
+	cout << "\nMang sau khi sap xep: ";
+	//insertionSort(a, n);
+	//insertionSortBinary(a, n);
+	BInsertionSort(a, n);
+	printArray(a, n);
+	//delete[]a;
+	return 0;
+}
