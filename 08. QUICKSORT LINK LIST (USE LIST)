@@ -1,0 +1,342 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+struct List {
+    Node* head;
+    Node* tail;
+};
+
+void Init(List& l) { // khoi tao List rong
+    l.head = l.tail = NULL;
+}
+
+Node* createNode(int k)
+{
+    Node* p = new Node;
+    if (p == NULL)
+    {
+        cout << "Khong du bo nho";
+        exit(0);
+    }
+    p->data = k;
+    p->next = NULL;
+    return p;
+}
+
+int length(List l)
+{
+    Node* pNode = l.head;
+    int count = 0;
+    while (pNode != NULL)
+    {
+        count++;
+        pNode = pNode->next;
+    }
+    return count;
+}
+
+void PrintList(List l) {
+    Node* p;
+    if (l.head == NULL)
+    {
+        cout << "Danh sach rong";
+        exit(0);
+    }
+    p = l.head;
+    while (p != NULL) {
+        cout << p->data << " ";
+        p = p->next;
+    }
+    cout << endl;
+}
+void RemoveAll(List& l)
+{
+    Node* p;
+    while (l.head != NULL)
+    {
+        p = l.head;
+        l.head = l.head->next;
+        delete p;
+    }
+    l.head = NULL;
+}
+
+// ham chen vao dau List:
+void addHead(List& l, int x)
+{
+    Node* p = createNode(x);
+    if (l.head == NULL)
+    {
+        l.head = l.tail = p;
+    }
+    else
+    {
+        p->next = l.head;
+        l.head = p;
+    }
+}
+// ham chen vao cuoi List
+void addTail(List& l, int x) {
+    Node* p = createNode(x);
+    if (l.head == NULL)
+    {
+        l.head = l.tail = p;
+    }
+    else {
+        l.tail->next = p;
+        l.tail = p;
+    }
+}
+// ham chen vao truoc node
+void insertBefore(Node* q, int k)
+{
+    Node* p = new Node;
+    if (p == NULL)
+    {
+        cout << "Loi khong du bo nho\n";
+        exit(0);
+    }
+    *p = *q;
+    q->next = p;
+    q->data = k;
+}
+
+void insertAt(List&l , int pos, int k)
+{
+    int n, i;
+    Node* q;
+    n = length(l);
+    if ((pos < 0) || (pos > n))
+    {
+        cout << "Vi tri chen khong phu hop\n";
+        return;
+    }
+    if (pos == 0)
+        addHead(l, k);
+    else
+    {
+        if (pos == n)
+            addTail(l, k);
+        else
+        {
+            for (i = 0, q = l.head; i < pos; i++, q = q->next);
+            insertBefore(q, k);
+            if (l.tail->next)
+                l.tail = l.tail->next;
+        }
+    }
+}
+
+void delHead(List& l)
+{
+    Node* q;
+    if (l.head == l.tail) {
+        delete l.head;
+        l.head = l.tail = NULL;
+    }
+    else
+    {
+        q = l.head;
+        l.head = l.head->next;
+        delete q;
+    }
+}
+
+void delTail(List& l)
+{
+    Node* q;
+    if (l.head == l.tail)
+    {
+        delete l.head;
+        l.head = l.tail = NULL;
+    }
+    else
+    {
+        for (q = l.head; q->next != l.tail; q = q->next);
+        delete l.tail;
+        l.tail = q;
+        q->next = NULL;
+    }
+}
+
+void delMid(Node* q)
+{
+    Node* r;
+    r = q->next;
+    *q = *r;
+    delete r;
+}
+void deleteAt(List& l, int pos)
+{
+    int n, i;
+    Node* q;
+    n = length(l);
+    if ((pos < 0) || (pos >= n))
+    {
+        cout << "Vi tri xoa khong phu hop\n";
+        return;
+    }
+    if (pos == 0)
+        delHead(l);
+    else
+    {
+        if (pos == n - 1)
+            delTail(l);
+        else
+        {
+            for (i = 0, q = l.head; i < pos; i++, q = q->next);
+            if (q->next == l.tail)
+                l.tail = q;
+            delMid(q);
+        }
+    }
+}
+
+void QuickSort(List& l) 
+{
+    List l1, l2;
+    Node* tag, * p;
+    if (l.head == l.tail) 
+        return;
+    Init(l1); 
+    Init(l2);
+    tag = l.head;
+    l.head = l.head->next; // cap nhat lai l.head
+    tag->next = NULL;// co lap tag
+    while (l.head != NULL) {
+        p = l.head;
+        l.head = l.head->next;
+        p->next = NULL;
+        if (p->data <= tag->data) 
+            addHead(l1, p->data);
+        else 
+            addHead(l2, p->data);
+    }
+    QuickSort(l1); 
+    QuickSort(l2);
+    if (l1.head != NULL)
+    { 
+        l.head = l1.head; 
+        l1.tail->next = tag;
+    } 
+    else
+        l.head = tag;
+    
+    tag->next = l2.head;
+
+    if (l2.head != NULL) 
+        l.tail = l2.tail;
+    else 
+        l.tail = tag;
+}
+void Swap(int& a, int& b)
+{
+    int c = a;
+    a = b;
+    b = c;
+}
+void SelectionSort(List& l) 
+{
+    Node* p, * q, * min;
+    for (p = l.head; p->next != NULL; p = p->next)
+    {
+        min = p;
+        for (q = p->next; q; q = q->next)
+        {
+            if (q->data < min->data)
+                min = q;
+        }
+        if (min != p)
+            swap(p->data, min->data);
+    }
+}
+
+void menu()
+{
+    List l;
+    Init(l);
+
+    int k, a;
+    while (1)
+    {
+        cout << "\n\t\t\t==================MENU================\t\t\t\n";
+        cout << "\n1.Them phan tu vao danh sach";
+        cout << "\n2.Them phan tu vao cuoi danh sach";
+        cout << "\n3.Xuat danh sach cac so nguyen";
+        cout << "\n4.Chen mot so tai vi tri xac dinh trong danh sach";
+        cout << "\n5.Xoa mot so tai vi tri xac dinh trong danh sach";
+        cout << "\n6.Sap xep tang dan danh sach lien ket bang Quick Sort";
+        cout << "\n7.Sap xep tang dan danh sach lien ket bang Selection Sort";
+        cout << "\n8.Huy toan bo danh sach lien ket";
+        cout << "\n\n\t\t\t==================END================\t\t\t\n";
+        cout << "\nNhap lua chon cua ban: ";
+        cin >> k;
+        switch (k)
+        {
+        case 1:
+            while (1)
+            {
+                cout << "Nhap so can them (nhap so 0 de thoat): ";
+                cin >> a;
+                if (a == 0)
+                    break;
+                addHead(l, a);
+            }
+            break;
+        case 2:
+            while (1)
+            {
+                cout << "Nhap so can them (nhap so 0 de thoat): ";
+                cin >> a;
+                if (a == 0)
+                    break;
+                addTail(l, a);
+            }
+            break;
+        case 3:
+            cout << "Du lieu danh sach lien ket la: ";
+            PrintList(l);
+            break;
+        case 4:
+            cout << "Nhap so can them : ";
+            cin >> a;
+            cout << "Nhap vi tri can them: ";
+            cin >> k;
+            insertAt(l, k, a);
+            break;
+        case 5:
+            cout << "Nhap vi tri can xoa: ";
+            cin >> k;
+            deleteAt(l, k);
+            break;
+        case 6:
+            cout << "Danh sach lien ket sau khi sap xep la: ";
+            QuickSort(l);
+            PrintList(l);
+            break;
+        case 7:
+            cout << "Danh sach lien ket sau khi sap xep la: ";
+            SelectionSort(l);
+            PrintList(l);
+            break;
+        case 8:
+            RemoveAll(l);
+            break;
+        default:
+            exit(0); break;
+        }
+        system("pause");
+        system("cls");
+    }
+}
+
+int main() 
+{
+    menu();
+    return 0;
+}
