@@ -1,0 +1,107 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+void DocFile(fstream& inFile, vector<int>& arr)
+{
+	if (!inFile.is_open())
+	{
+		cout << "Khong mo duoc file.\n";
+		return;
+	}
+	else
+	{
+		cout << "\nDoc file.\n";
+		int temp, i = 0;
+		while (!inFile.eof())
+		{
+			inFile >> temp;
+			arr.push_back(temp);
+			i++;
+		}
+		inFile.close();
+	}
+}
+void GhiFile(fstream& outFile, vector<int> arr)
+{
+	if (!outFile.is_open())
+	{
+		cout << "Khong mo duoc file.\n";
+		return;
+	}
+	else
+	{
+		cout << "\nGhi file.\n";
+		int n = arr.size();
+		for (int i = 0; i < n; i++)
+		{
+			outFile << arr[i] << " ";
+		}
+	}
+	outFile.close();
+}
+template <class T>
+void swap(T* a, T* b)
+{
+	T t = *a;
+	*a = *b;
+	*b = t;
+}
+void printArray(vector<int> arr)
+{
+	int n = arr.size();
+	for (int i = 0; i < n; ++i)
+		cout << arr[i] << " ";
+	cout << "\n";
+}
+void selectionSort(vector<int>& a)
+{
+	int min, max, n = a.size();
+	for (int i = 0; i < n - 1; i++)
+	{
+		if (a[i] % 2 == 0)
+		{
+			min = i;
+			for (int j = i + 1; j < n; j++)
+			{
+				if (a[j] % 2 == 0 && a[j] < a[min])
+					min = j;
+			}
+
+			if (i != min)
+				swap(&a[i], &a[min]);
+		}
+
+		if (a[i] % 2 != 0)
+		{
+			max = i;
+			for (int j = i + 1; j < n; j++)
+			{
+				if (a[j] % 2 != 0 && a[j] > a[max])
+					max = j;
+			}
+
+			if (i != max)
+				swap(&a[i], &a[max]);
+		}
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	vector<int>arr;
+	fstream inFile(argv[1]);
+	fstream outFile(argv[2]);
+
+	DocFile(inFile, arr);
+	cout << "\nMang truoc khi sap xep: ";
+	printArray(arr);
+	cout << "\nMang sau khi sap xep: ";
+	selectionSort(arr);
+	printArray(arr);
+	GhiFile(outFile, arr);
+
+	return 0;
+}
