@@ -1,0 +1,246 @@
+#include <iostream>
+using namespace std;
+
+struct NODE {
+	int Key;
+	NODE* pNext;
+};
+NODE* CreateNode(int Data)
+{
+	NODE* pNode;
+	pNode = new NODE; 
+	if (pNode == NULL)
+		return NULL;
+	pNode->Key = Data;
+	pNode->pNext = NULL;
+	return pNode;
+}
+void AddHead(NODE*& pHead, NODE*& pTail, int Data)
+{
+	NODE* pNode;
+	pNode = CreateNode(Data);
+	
+	if (pHead == NULL)
+		pHead = pTail = pNode;
+	else 
+	{
+		pNode->pNext = pHead;
+		pHead = pNode;
+	}
+}
+void AddTail(NODE*& pHead, NODE*& pTail, int Data)
+{
+	NODE* pNode;
+	pNode = CreateNode(Data);
+
+	if (pHead == NULL)
+		pHead = pTail = pNode;
+	else 
+	{
+		pTail->pNext = pNode;
+		pTail = pNode;
+	}
+}
+void DelHead(NODE*& pHead, NODE*& pTail)
+{
+	NODE* pNode;
+
+	if (pHead == pTail)
+	{
+		delete pHead;
+		pHead = pTail = NULL;
+	}		
+	else 
+	{
+		pNode = pHead;
+		pHead = pHead->pNext;
+		delete pNode;
+	}
+}
+void DelTail(NODE*& pHead, NODE*& pTail)
+{
+	NODE* pNode;
+
+	if (pHead == pTail)
+	{
+		delete pHead;
+		pHead = pTail = NULL;
+	}
+	else
+	{
+		for (pNode = pHead; pNode->pNext != pTail; pNode = pNode->pNext);
+		delete pTail;
+		pTail = pNode;
+		pNode->pNext = NULL;
+	}
+}
+void PrintList(NODE* pHead)
+{
+	NODE* pNode = pHead;
+	while (pNode != NULL)
+	{
+		cout << pNode->Key << " ";
+		pNode = pNode->pNext; 
+	}
+}
+void RemoveAll(NODE*& pHead) 
+{
+	NODE* pNode;
+	while (pHead != NULL)
+	{
+		pNode = pHead;
+		pHead = pHead->pNext;
+		delete pNode;
+	}
+	pHead = NULL; 
+}
+int SumList(NODE*& pHead)
+{
+	NODE* pNode = pHead;
+	int sum = 0;
+	while (pNode != NULL)
+	{
+		sum += pNode->Key;
+		pNode = pNode->pNext;
+	}
+	return sum;
+}
+int MaxList(NODE*& pHead)
+{
+	NODE* pNode = pHead;
+	int max = pNode->Key;
+	pNode = pNode->pNext;
+	while (pNode != NULL)
+	{
+		if (pNode->Key > max)
+			max = pNode->Key;
+		pNode = pNode->pNext;
+	}
+	return max;
+}
+int CountList(NODE* pHead)
+{
+	NODE* pNode = pHead;
+	int count = 0;
+	while (pNode != NULL)
+	{
+		count++;
+		pNode = pNode->pNext;
+	}
+	return count;
+}
+int countDuplicate(NODE* pHead, int Data)
+{
+	NODE* pNode = pHead;
+	int count = 0;
+	while (pNode != NULL)
+	{
+		if (Data == pNode->Key)
+			count++;
+		pNode = pNode->pNext;
+	}
+	return count;
+}
+void AddHead2(NODE*& pHead, NODE*& pTail, int Data)
+{
+	NODE* pNode;
+	pNode = CreateNode(Data);
+
+	if (pHead == NULL)
+		pHead = pTail = pNode;
+	else
+	{
+		while (countDuplicate(pHead, Data) != 0)
+		{
+			cout << "So ban nhap bi trung.\nNhap vao du lieu, -1 de ket thuc: ";
+			cin >> Data;
+			pNode = CreateNode(Data);
+		}
+		pNode->pNext = pHead;
+		pHead = pNode;
+	}
+}
+void AddTail2(NODE*& pHead, NODE*& pTail, int Data)
+{
+	NODE* pNode;
+	pNode = CreateNode(Data);
+
+	if (pHead == NULL)
+		pHead = pTail = pNode;
+	else
+	{
+		while (countDuplicate(pHead, Data) != 0)
+		{
+			cout << "So ban nhap bi trung.\nNhap vao du lieu, -1 de ket thuc: ";
+			cin >> Data;
+			pNode = CreateNode(Data);
+		}
+		pTail->pNext = pNode;
+		pTail = pNode;
+	}
+}
+int main()
+{
+	NODE* pRoot = NULL, *pLeaf = NULL;
+	int Data;
+	do
+	{
+		cout << "Nhap vao du lieu, -1 de ket thuc: ";
+		cin >> Data;
+		if (Data == -1)
+			break;
+		AddHead(pRoot, pLeaf, Data);
+	} while (Data != -1);
+	cout << "\nDu lieu da duoc nhap: \n";
+	PrintList(pRoot);
+	int sum = SumList(pRoot);
+	cout << "\nCau 1: Tong gia tri cac phan tu tren danh sach lien ket la " << sum;
+	int max = MaxList(pRoot);
+	cout << "\nCau 2: Gia tri lon nhat trong cac phan tu tren danh sach lien ket la " << max;
+	int count = CountList(pRoot);
+	cout << "\nCau 3: So luong phan tu cua danh sach lien ket la " << count;
+	cout << "\nCau 4: Them vao cuoi danh sach lien ket.\n";
+	do
+	{
+		cout << "Nhap vao du lieu, -1 de ket thuc: ";
+		cin >> Data;
+		if (Data == -1)
+			break;
+		AddTail(pRoot, pLeaf, Data);
+	} while (Data != -1);
+	cout << "\nDu lieu da duoc nhap: \n";
+	PrintList(pRoot);
+
+	DelHead(pRoot, pLeaf);	
+	cout << "\nCau 5: Xoa phan tu dau danh sach lien ket.\nDu lieu dang hien co la: ";
+	PrintList(pRoot);
+	DelTail(pRoot, pLeaf);	
+	cout << "\nCau 6: Xoa phan tu cuoi danh sach lien ket.\nDu lieu dang hien co la: ";
+	PrintList(pRoot);
+	
+	int x;
+	cout << "\nMoi ban nhap gia tri x: ";
+	cin >> x;
+	int countDup = countDuplicate(pRoot, x);
+	cout << "\nCau 7: So luong phan tu cua danh sach lien ket co gia tri trung voi"
+		<< " gia tri " << x << " la " << countDup;
+	RemoveAll(pRoot);
+	
+	cout << "\nCau 8: Tao mot danh sach lien ket don moi khong co cap phan tu nao"
+		<< " mang gia tri giong nhau.\nDau tien xoa het gia tri danh sach lien ket cu.";
+	cout << "\nDu lieu hien co la: ";
+	PrintList(pRoot);
+	cout << endl;
+	do
+	{
+		cout << "Nhap vao du lieu, -1 de ket thuc: ";
+		cin >> Data;
+		if (Data == -1)
+			break;
+		AddTail2(pRoot, pLeaf, Data);
+	} while (Data != -1);
+	cout << "\nDu lieu da duoc nhap: \n";
+	PrintList(pRoot);
+	RemoveAll(pRoot);
+	return 0;
+}
