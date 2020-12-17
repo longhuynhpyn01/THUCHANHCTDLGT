@@ -1,0 +1,196 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cstring>
+#include <cctype>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+struct NhanVien
+{
+	string hoten;
+	int tuoi{};
+};
+bool check(char* str)
+{
+	int i = 0;
+	while (str[i] != '\0')
+	{
+		if (!isdigit(str[i]))
+			return false;
+		i++;
+	}
+	return true;
+
+}
+char* transfer(string s)
+{
+	int n = s.length();
+	char* str = new char[n + 1];
+	for (int i = 0; i < n; i++)
+	{
+		str[i] = s[i];
+	}
+	str[n] = '\0';
+	return str;
+}
+int transferToInt(char* c)
+{
+	int  i = 0, res = 0;
+	while (c[i] != '\0')
+	{
+		res = res * 10 + (int)c[i] - 48;
+		i++;
+	}
+	return res;
+}
+void DocFile(fstream& inFile, vector<NhanVien>& nv)
+{
+	char* tuoi1, * a, * ten1;
+	string header;
+
+	if (!inFile.is_open())
+	{
+		cout << "Khong mo duoc file.\n";
+		return;
+	}
+	else
+	{
+		cout << "\nDoc File.\n";
+		int i = 0;
+		getline(inFile, header, '\n');
+		string tmp;
+		while (!inFile.eof())
+		{
+			getline(inFile, tmp, '\n');
+			a = transfer(tmp);
+			int n = tmp.length();
+			int k, j;
+			for (k = n - 1; k > 0; k--)
+			{
+				if (a[k] == ' ')
+					break;
+			}
+			NhanVien nvien;
+			ten1 = new char[k + 1];
+			for (j = 0; j < k; j++)
+				ten1[j] = a[j];
+			ten1[k] = '\0';
+			nvien.hoten = string(ten1);
+
+			tuoi1 = new char[n - k];
+			for (int j = k + 1; j < n; j++)
+				tuoi1[j - k - 1] = a[j];
+			tuoi1[n - k - 1] = '\0';
+			nvien.tuoi = transferToInt(tuoi1);
+			nv.push_back(nvien);
+			delete[]a;
+			delete[]ten1;
+			delete[]tuoi1;
+			i++;
+		}
+		inFile.close();
+		cout << "\nHoan thanh Doc file.\n";
+	}
+}
+void GhiFile(fstream& outFile, vector<NhanVien> nv)
+{
+	if (!outFile.is_open())
+	{
+		cout << "\nKhong mo duoc file.\n";
+		return;
+	}
+	else
+	{
+		cout << "\nGhi file.\n";
+		int n = nv.size();
+		outFile << "Ten Nhan Vien Tuoi" << endl;
+		for (int i = 0; i < n; i++)
+		{
+			outFile << nv[i].hoten << " " << nv[i].tuoi;
+			if (i == n - 1)
+				break;
+			outFile << endl;
+		}
+		outFile.close();
+		cout << "\nHoan thanh Ghi file.\n";
+	}
+}
+template <class T>
+void swap(T* a, T* b)
+{
+	T t = *a;
+	*a = *b;
+	*b = t;
+}
+void swapTen(string& a, string& b)
+{
+	string t = a;
+	a = b;
+	b = t;
+}
+void heapify(vector<NhanVien>& nv, int n, int i)
+{
+	int min = i;
+	int l = 2 * i + 1;
+	int r = 2 * i + 2;
+
+	if (l < n && nv[l].tuoi < nv[min].tuoi)
+		min = l;
+	if (r < n && nv[r].tuoi < nv[min].tuoi)
+		min = r;
+
+	if (min != i)
+	{
+		swap(&nv[i].tuoi, &nv[min].tuoi);
+		swapTen(nv[i].hoten, nv[min].hoten);
+		heapify(nv, n, min);
+	}
+}
+void heapSort(vector<NhanVien>& nv, int n)
+{
+	for (int i = n / 2 - 1; i >= 0; i--) {
+		heapify(nv, n, i);
+	}
+	for (int i = n - 1; i > 0; i--)
+	{
+		swap(&nv[0].tuoi, &nv[i].tuoi);
+		swapTen(nv[0].hoten, nv[i].hoten);
+		heapify(nv, i, 0);
+	}
+	for (int i = 0; i < n - 1; i++)
+	{
+		for (int j = i + 1; j < n; j++)
+		{
+			if ((strcmp(nv[i].hoten.c_str(), nv[j].hoten.c_str()) > 0)
+				&& (nv[i].tuoi == nv[j].tuoi))
+			{
+				swap(&nv[i].tuoi, &nv[j].tuoi);
+				swapTen(nv[i].hoten, nv[j].hoten);
+			}
+		}
+	}
+}
+int main(int argc, char** argv)
+{
+	fstream inFile(argv[1]);
+	fstream outFile(argv[2]);
+	vector<NhanVien> nv;
+	DocFile(inFile, nv);
+	int n = nv.size();
+	cout << left << setw(20) << "Ho va ten" << left << setw(10) << "Tuoi" << endl << endl;
+	for (int i = 0; i < n; i++)
+	{
+		cout << left << setw(20) << nv[i].hoten << left << setw(10) << nv[i].tuoi << endl;
+	}
+	cout << "\nSau khi sap xep: \n\n";
+	heapSort(nv, nv.size());
+	cout << left << setw(20) << "Ho va ten" << left << setw(10) << "Tuoi" << endl << endl;
+	for (int i = 0; i < n; i++)
+	{
+		cout << left << setw(20) << nv[i].hoten << left << setw(10) << nv[i].tuoi << endl;
+	}
+	GhiFile(outFile, nv);
+	return 0;
+}
