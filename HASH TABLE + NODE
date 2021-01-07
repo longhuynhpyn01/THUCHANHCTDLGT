@@ -1,0 +1,388 @@
+//nhom 4: 19120566_19120577_19120581
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+using namespace std;
+
+#define tableSIZE 2000
+
+struct Company
+{
+	string name;
+	string profit_tax;
+	string address;
+};
+
+vector<Company> readCompanyList(string file_name);
+long long hashString(string company_name);
+Company* createHashTable(vector<Company> list_company);
+void insert(Company* hash_table, Company company);
+Company* search(Company* hash_table, string company_name);
+
+
+vector<Company> readCompanyList(string file_name)
+{
+	vector<Company> cor;
+	Company temp;
+
+	fstream inFile(file_name, ios::in);
+	if (!inFile.is_open())
+	{
+		cout << "Khong mo duoc file!\n!";
+		return vector<Company>();
+	}
+	string headline;
+	getline(inFile, headline);
+	while (!inFile.eof())
+	{
+		getline(inFile, temp.name, '|');
+		getline(inFile, temp.profit_tax, '|');
+		getline(inFile, temp.address);
+		cor.push_back(temp);
+	}
+	inFile.close();
+
+	return cor;
+}
+
+long long hashString(string company_name)
+{
+	long long hash = 0;
+	const int p = 31;
+	const int m = 1000000009;
+	string s = company_name;
+	if (s.length() > 20)
+		s = company_name.substr(s.length() - 20, 20);
+
+	int n = s.length();
+	long long p0 = 1;
+	for (int i = 0; i < n; i++)
+	{
+		hash += ((long long)s[i] * p0) % m;
+		p0 = (p0 * p) % m;
+	}
+
+	return hash;
+}
+
+Company* createHashTable(vector<Company> list_company)
+{
+	Company* table = new Company[tableSIZE];
+	int n = list_company.size();
+	for (int i = 0; i < n; i++)
+		insert(table, list_company[i]);
+
+	return table;
+}
+
+void insert(Company* hash_table, Company company)
+{
+	int index = hashString(company.name) % tableSIZE;
+	while (hash_table[index].name != "")
+		index++;
+	hash_table[index] = company;
+}
+
+Company* search(Company* hash_table, string company_name)
+{
+	int index = hashString(company_name) % tableSIZE;
+	while (true)
+	{
+		if (hash_table[index].name == "")
+			return NULL;
+		if (company_name.compare(hash_table[index].name) == 0)
+			break;
+		index++;
+	}
+
+	return (hash_table + index);
+}
+
+void Bai_1()
+{
+	vector<Company> L = readCompanyList("MST.txt");
+	cout << "-  File da duoc doc thanh cong!" << endl;
+
+	cout << "-  Tao bang bam tu danh sach cong ty." << endl;
+	Company* M = createHashTable(L);
+	cout << "-  Bang bam da duoc tao thanh cong!" << endl;
+
+	cout << "-  Them thong tin mot cong ty vao bang bam:" << endl;
+	cout << "-  Vui long nhap thong tin cua cong ty:" << endl;
+	Company cor1;
+	cout << "       + Ten cong ty: ";
+	getline(cin, cor1.name);
+	cout << "       + Ma so thue: ";
+	getline(cin, cor1.profit_tax);
+	cout << "       + Dia chi: ";
+	getline(cin, cor1.address);
+	insert(M, cor1);
+	cout << "-  Them thong tin thanh cong!" << endl;
+
+	cout << "-  Tim kiem cong ty bang ten." << endl;
+	while (true)
+	{
+		string s;
+		cout << "-  Moi ban nhap ten cong ty can tim kiem (nhan '#' de ket thuc): ";
+		getline(cin, s);
+		if (s == "#")
+			break;
+		Company* cor2 = search(M, s);
+		if (cor2 == NULL)
+			cout << "=>  Khong tim thay cong ty nay trong danh sach!" << endl;
+		else
+		{
+			cout << "=>  Thong tin cong ty can tim la:" << endl;
+			cout << "       + Ten cong ty: " << cor2->name << endl;
+			cout << "       + Ma so thue: " << cor2->profit_tax << endl;
+			cout << "       + Dia chi: " << cor2->address << endl;
+		}
+	}
+
+	delete[] M;
+}
+
+struct NODE {
+	int data;
+	NODE* pNext, * pPrev;
+};
+
+struct LIST
+{
+	NODE* pHead;
+	NODE* pTail;
+};
+
+void getList(LIST& l)
+{
+	l.pHead = NULL;
+	l.pTail = NULL;
+}
+
+NODE* getNode(int k)
+{
+	NODE* p = new NODE;
+	if (p == NULL)
+	{
+		cout << "Khong du bo nho cap phat."; return NULL;
+	}
+	p->data = k;
+	p->pPrev = NULL;
+	p->pNext = NULL;
+	return p;
+}
+
+void printList(LIST l)
+{
+	for (NODE* k = l.pHead; k != NULL; k = k->pNext)
+		cout << k->data << "  ";
+}
+
+void addFirst(LIST& l, NODE* p)
+{
+	if (l.pHead == NULL)
+	{
+		l.pHead = l.pTail = p;
+	}
+	else
+	{
+		p->pNext = l.pHead;
+		l.pHead->pPrev = p;
+		l.pHead = p;
+	}
+}
+
+void addLast(LIST& l, NODE* p)
+{
+	if (l.pHead == NULL)
+	{
+		l.pHead = l.pTail = p;
+	}
+	else
+	{
+		l.pTail->pNext = p;
+		p->pPrev = l.pTail;
+		l.pTail = p;
+	}
+}
+void initList(LIST& l, int x) {
+	NODE* p = getNode(x);
+	addLast(l, p);
+}
+
+void addBeforeANode(LIST& l, NODE* p, NODE* q)
+{
+	if (q->data == l.pHead->data)
+	{
+		addFirst(l, p);
+	}
+	else
+	{
+		NODE* g = new NODE;
+		for (NODE* k = l.pHead; k != NULL; k = k->pNext)
+		{
+			if (q->data == k->data)
+			{
+				NODE* h = getNode(p->data);
+				h->pNext = k;
+				k->pPrev = h;
+				g->pNext = h;
+				h->pPrev = g;
+			}
+			g = k;
+		}
+	}
+}
+
+void addAfterANode(LIST& l, NODE* p, NODE* q)
+{
+	if (q->data == l.pHead->data && l.pHead->pNext == NULL)
+	{
+		addLast(l, p);
+	}
+	else
+	{
+		for (NODE* k = l.pHead; k != NULL; k = k->pNext)
+		{
+			if (q->data == k->data)
+			{
+				if (k == l.pTail) 
+					addLast(l, p);
+				else
+				{
+					NODE* h = getNode(p->data);
+					NODE* g = k->pNext;
+					h->pNext = g;
+					if (g != NULL)
+						g->pPrev = h;
+					k->pNext = h;
+					h->pPrev = k;
+				}
+				break;
+			}
+		}
+	}
+}
+
+void DeleteFirst(LIST& l)
+{
+	NODE* k;
+	if (l.pHead == l.pTail)
+	{
+		free(l.pHead);
+		l.pHead = l.pTail = NULL;
+	}
+	else
+	{
+		k = l.pHead;
+		l.pHead = l.pHead->pNext;
+		l.pHead->pPrev = NULL;
+		free(k);
+	}
+}
+
+void DeleteLast(LIST& l)
+{
+	NODE* k;
+	if (l.pHead == l.pTail)
+	{
+		free(l.pHead);
+		l.pHead = l.pTail = NULL;
+	}
+	else
+	{
+		k = l.pTail;
+		l.pTail = l.pTail->pPrev;
+		l.pTail->pNext = NULL;
+		free(k);
+	}
+}
+
+void DeleteAt(LIST& l, int x)
+{
+	NODE* g = new NODE;
+	if (l.pHead->data == x) 
+		DeleteFirst(l);
+	else if (l.pTail->data == x) 
+		DeleteLast(l);
+	else
+	{
+		for (NODE* k = l.pHead; k != NULL; k = k->pNext)
+		{
+			if (k->data == x) {
+				g->pNext = k->pNext;
+				k->pNext->pPrev = g;
+				free(k);
+				break;
+			}
+			g = k;
+		}
+	}
+}
+
+void Bai_2(LIST& l)
+{
+	int x;
+	cout << "1. KHOI TAO DANH SACH DUA THEO SO NGUYEN X\n";
+	cout << "\nNhap so nguyen de khoi tao danh sach: ";
+	cin >> x;
+	initList(l, x);
+	cout << "Danh sach sau khi khoi tao: ";
+	printList(l);
+	cout << "\n\n2. THEM MOT NODE VAO DAU SANH SACH";
+	cout << "\nNhap so nguyen de them vao dau danh sach: ";
+	cin >> x;
+	NODE* k = getNode(x);
+	if (k == NULL) cout << "Chua them duoc.";
+	addFirst(l, k);
+	cout << "Danh sach sau khi them: ";
+	printList(l);
+	cout << "\n\n3. THEM MOT NODE p VAO TRUOC MOT NODE q";
+	cout << "\nNhap du lieu cua node p: "; cin >> x; NODE* p = getNode(x);
+	cout << "\nNhap du lieu cua node q: "; cin >> x; NODE* q = getNode(x);
+	addBeforeANode(l, p, q);
+	cout << "Danh sach sau khi them: ";
+	printList(l);
+	cout << "\n\n4. THEM MOT NODE p VAO SAU MOT NODE q";
+	cout << "\nNhap du lieu cua node p: "; cin >> x; p = getNode(x);
+	cout << "\nNhap du lieu cua node q: "; cin >> x; q = getNode(x);
+	addAfterANode(l, p, q);
+	cout << "Danh sach sau khi them: ";
+	printList(l);
+	cout << "\n\n5. THEM MOT NODE VAO CUOI SANH SACH";
+	cout << "\nNhap so nguyen de them vao cuoi danh sach: ";
+	cin >> x;
+	k = getNode(x);
+	if (p == NULL) cout << "\nChua them duoc.";
+	addLast(l, k);
+	cout << "\nDanh sach sau khi them: ";
+	printList(l);
+	cout << "\n\n6. XOA MOT NODE O DAU DANH SACH";
+	DeleteFirst(l);
+	cout << "\nDanh sach sau khi xoa: ";
+	printList(l);
+	cout << "\n\n7. XOA MOT NODE O CUOI DANH SACH";
+	DeleteLast(l);
+	cout << "\nDanh sach sau khi xoa: ";
+	printList(l);
+	cout << "\n\n8. XOA MOT NODE DAU TIEN CO GIA TRI x";
+	cout << "\nNhap gia tri x can xoa: ";
+	cin >> x;
+	cout << "\nDanh sach sau khi xoa: ";
+	DeleteAt(l, x);
+	printList(l);
+}
+
+int main()
+{
+	cout << "Bai 1: " << endl;
+	Bai_1();
+
+	cout << endl;
+	LIST l;
+	getList(l);
+	cout << "Bai 2: " << endl;
+	Bai_2(l);
+	return 0;
+}
