@@ -1,0 +1,176 @@
+#include <iostream>
+using namespace std;
+
+struct NODE {
+	int Key;
+	NODE* pNext;
+};
+NODE* CreateNode(int Data)
+{
+	NODE* pNode;
+	pNode = new NODE;
+	if (pNode == NULL)
+		return NULL;
+	pNode->Key = Data;
+	pNode->pNext = NULL;
+	return pNode;
+}
+bool AddHead(NODE*& pHead, int Data)
+{
+	NODE* pNode;
+	pNode = CreateNode(Data);
+	if (pNode == NULL)
+		return false;
+	if (pHead == NULL)
+		pHead = pNode;
+	else {
+		pNode->pNext = pHead;
+		pHead = pNode;
+	}
+	return true;
+}
+NODE* RemoveHead(NODE*& pHead)
+{
+	if (pHead == NULL)
+		return NULL;
+	NODE* pResult = pHead;
+	pHead = pHead->pNext;
+	return pResult;
+}
+NODE* RemoveTail(NODE*& pHead)
+{
+	NODE* pNode;
+	if (pHead == NULL) //<1> pHead bằng NULL nên trả về NULL
+	{
+		return NULL;
+	}
+	else if (pHead->pNext == NULL) //<2> pHead->pNext bằng NULL nên cập nhật pHead, trả về pHead
+	{
+		pNode = pHead;
+		pHead = NULL;
+		return pNode;
+	}
+	pNode = pHead;
+	while (pNode->pNext->pNext != NULL) //<3> Nếu không thuộc 2 TH trên thì ta sẽ tìm vị trí
+	{	// pNode->pNext->pNext khác NULL trả về pNode->pNext, rồi ta cập nhật pNode->pNext = NULL
+		pNode = pNode->pNext;
+	}
+	NODE* pResult = pNode->pNext;
+	pNode->pNext = NULL;
+	return pResult;
+}
+//-------STACK :
+//----PUSH tương ứng AddHead
+//----POP tương ứng RemoveHead
+bool PushStack(NODE*& pStack, int Data)
+{
+	return AddHead(pStack, Data);
+}
+NODE* PopStack(NODE*& pStack)
+{
+	if (pStack == NULL)
+	{
+		cout << "\nSTACK RONG, KHONG LAY DUOC PHAN TU";
+		return NULL;
+	}
+	return RemoveHead(pStack);
+}
+//--------QUEUE :
+//----ENQUEUE tương ứng AddHead
+//----DEQUEUE tương ứng RemoveTail
+bool EnQueue(NODE*& pQueue, int Data)
+{
+	return AddHead(pQueue, Data);
+}
+NODE* DeQueue(NODE*& pQueue)
+{
+	if (pQueue == NULL)
+	{
+		cout << "\nQUEUE RONG, KHONG LAY DUOC PHAN TU";
+		return NULL;
+	}
+	return RemoveTail(pQueue);
+}
+int main()
+{
+	NODE* pStack = NULL;
+	NODE* pQueue = NULL;
+	int n = 4;
+	while (n != 0)
+	{
+		PushStack(pStack, n);
+		EnQueue(pQueue, n);
+		n--;
+	}
+	NODE* pNode = DeQueue(pQueue);
+	if (pNode != NULL) //<4> Em giai thich o ben duoi do cau tra loi dai qua
+		cout << "\nGia tri phan tu (Queue) : " << pNode->Key << endl;
+	else
+		cout << "\nNULL\n";
+	NODE* pNode2 = PopStack(pStack);
+	if (pNode2 != NULL)
+		cout << "\nGia tri phan tu (Stack) : " << pNode2->Key << endl;
+	else
+		cout << "\nNULL\n";
+
+	cout << "CAU 5\n";
+	int x;
+	for (int i = 0; i < 3; i++)
+	{
+		cout << "\nNhap phan tu can them vao stack: ";
+		cin >> x;
+		PushStack(pStack, x);
+	}
+	cout << "\nLay phan tu ra khoi stack: ";
+	for (int i = 0; i < 4; i++)
+	{
+		pNode2 = PopStack(pStack);
+	}
+	if(pNode2 != NULL)
+		cout << "\nGia tri phan tu (Stack) : " << pNode2->Key << endl;
+
+	for (int i = 0; i < 3; i++)
+	{
+		cout << "\nNhap phan tu can them vao queue: ";
+		cin >> x;
+		EnQueue(pQueue, x);
+	}
+	cout << "\nLay phan tu ra khoi stack: ";
+	for (int i = 0; i < 4; i++)
+	{
+		pNode = DeQueue(pQueue);
+	}
+	if (pNode != NULL)
+		cout << "\nGia tri phan tu (Stack) : " << pNode->Key << endl;
+
+	return 0;
+}
+
+/*
+CAU 2. Thay giá trị n=10 thành n=1 trong main, đọc giá trị Queue và Stack in ra màn hình.
+=> Gia tri phan tu (Queue) : 1
+   Gia tri phan tu (Stack) : 1
+
+CAU 3. Giải thích <4> khi nào giá trị pNode khác NULL, khi nào pNode bằng NULL, ý nghĩa của
+mỗi trường hợp trên.
+=> - pNode bằng NULL khi Queue rỗng, có nghĩa là Queue không có phần tử nào trong hàng đợi. Vì
+vậy ta không thể thực hiện các thao tác thêm, xóa, lấy 1 phần tử từ hàng đợi.
+   - pNode khác NULL khi Queue rỗng, có nghĩa là Queue có phần tử trong hàng đợi. Vì vậy ta
+có thể thực hiện các thao tác thêm, xóa, lấy 1 phần tử từ hàng đợi.
+
+CAU 4. Giải thích hàm RemoveTail ở các điểm <1>, <2>, <3> cho biết ý nghĩa của chúng.
+=> Em đã làm ở trên
+
+CAU 5. Sử dụng các hàm PushStack, PopStack, EnQueue, DeQueue để cài đặt.
+a. Về Stack: Trong hàm main, thực hiện việc thêm vào 3 giá trị do người dùng nhập
+vào (thực hiện 3 lệnh thêm phần tử vào stack), sau đó thực hiện 4 lần lệnh lấy giá trị
+phần tử ra khỏi stack, nếu có, in giá trị phần tử ra màn hình, nếu không có (stack
+rỗng), in ra màn hình "STACK RONG, KHONG LAY DUOC PHAN TU".
+=> Em da lam trong ham main
+
+b. Về Queue: Trong hàm main, thực hiện việc thêm vào 3 giá trị do người dùng nhập
+vào (thực hiện 3 lần lệnh thêm phần tử vào queue), sau đó thực hiện 4 lần lệnh lấy
+giá trị phần tử ra khỏi queue, nếu có, in giá trị phần tử ra màn hình, nếu không có
+(queue rỗng), in ra màn hình "QUEUE RONG, KHONG LAY DUOC PHAN TU".
+=> Em da lam trong ham main
+*/
