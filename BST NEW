@@ -1,0 +1,205 @@
+#include <iostream>
+using namespace std;
+
+struct NODE
+{
+    int data;
+    NODE* pLeft;
+    NODE* pRight;
+};
+
+NODE* CreateNode(int x)
+{
+    NODE* p = new NODE();
+    p->data = x;
+    p->pLeft = p->pRight = NULL;
+    return p;
+}
+
+NODE* FindInsert(NODE* root, int x)
+{
+    if (root == NULL)
+    {
+        return NULL;
+    }
+    NODE* p = root;
+    NODE* f = p;
+    while (p != NULL)
+    {
+        f = p;
+        if (p->data > x)
+        {
+            p = p->pLeft;
+        }
+        else
+        {
+            p = p->pRight;
+        }
+    }
+    return f;
+}
+void InsertNode(NODE*& root, int x)
+{
+    NODE* n = CreateNode(x);
+    if (root == NULL)
+    {
+        root = n;
+        return;
+    }
+    else
+    {
+        NODE* f = FindInsert(root, x);
+        if (f != NULL)
+        {
+            if (f->data > x)
+            {
+                f->pLeft = n;
+            }
+            else
+            {
+                f->pRight = n;
+            }
+        }
+    }
+}
+void CreateTree(NODE*& root, int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        InsertNode(root, a[i]);
+    }
+}
+//su dung de qui
+NODE* SearchNode_Re(NODE* root, int x)
+{
+    if (root == NULL)
+        return NULL;
+
+    if (root->data == x)
+    {
+        return root;
+    }
+    if (root->data > x)
+    {
+        SearchNode_Re(root->pLeft, x);
+    }
+    else
+    {
+        SearchNode_Re(root->pRight, x);
+    }
+}
+// su dung vong lap
+NODE * SearchNode(NODE * root, int x)
+{
+    if (root == NULL)
+        return NULL;
+
+    NODE* p = root;
+    while (p != NULL)
+    {
+        if (p->data == x)
+        {
+            return p;
+        }
+        else if (p->data > x)
+        {
+            p = p->pLeft;
+        }
+        else
+        {
+            p = p->pRight;
+        }
+    }
+}
+
+void NLR(NODE* root)
+{
+    if (root != NULL)
+    {
+        printf("%d \t", root->data);
+        NLR(root->pLeft);
+        NLR(root->pRight);
+    }
+}
+void LNR(NODE* root)
+{
+    if (root != NULL)
+    {
+        LNR(root->pLeft);
+        printf("%d \t", root->data);
+        LNR(root->pRight);
+    }
+}
+void LRN(NODE* root)
+{
+    if (root != NULL)
+    {
+        LRN(root->pLeft);
+        LRN(root->pRight);
+        printf("%d \t", root->data);
+    }
+}
+
+int main()
+{
+    NODE* root = NULL;
+    int a[] = { 40, 5, 35, 45, 15, 56, 48, 13, 16, 49, 47 };
+    int n = 11;
+    CreateTree(root, a, n);
+    //NLR(root);
+    //LNR(root);
+    LRN(root);
+
+    return 0;
+}
+//so chinh phuong
+bool soChinhPhuong(int n){
+  int i = 0;
+  while(i*i <= n){
+        if(i*i == n){
+            return true;
+        }
+        ++i;
+    }
+    return false;
+}
+//so hoan hao
+bool check(int n){
+    int sum = 0;//khai bao biem sum
+    for(int i=1;i<=n/2;i++){
+        if(n%i==0) 
+            sum+=i;
+    }
+    if(sum==n) return true; // tra ve true
+    return false;
+}
+// so nguyen to
+int isPrimeNumber(int n) {
+    // so nguyen n < 2 khong phai la so nguyen to
+    if (n < 2) {
+        return 0;
+    }
+    // check so nguyen to khi n >= 2
+    int squareRoot = (int) sqrt(n);
+    int i;
+    for (i = 2; i <= squareRoot; i++) {
+        if (n % i == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+bool IsPrime(int n)
+{
+       if (n < 2)
+              return false;
+       else if (n == 2)
+              return true;
+       else if (n % 2 == 0)
+              return false;
+       for (int i = 3; i <= sqrt(n); i += 2)
+              if (n % i == 0)
+                     return false;
+       return true;
+}
